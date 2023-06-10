@@ -7,10 +7,10 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework import viewsets
 # import the userSerializer from the serializer file
-from .serializers import adminSerializer
+from .serializers import *
 from rest_framework.decorators import api_view
 # import the user model from the models file
-from .models import Document
+from .models import Document, Fichier
 from rest_framework.response import Response
 # create a class for the user model viewsets
 
@@ -40,3 +40,20 @@ class UpdateDocumentView(UpdateAPIView):
 class DeleteDocumentView(DestroyAPIView):
     queryset= Document.objects.all()
     serializer_class= adminSerializer
+    
+    
+class ListFichierView(ListAPIView):
+    queryset= Fichier.objects.all()
+    serializer_class= fichierSerializer
+
+class CreateFichierView(CreateAPIView):
+    queryset= Fichier.objects.all()
+    serializer_class= fichierSerializer
+    
+class UpdateFichierView(UpdateAPIView): 
+    queryset= Fichier.objects.all()
+    serializer_class= fichierSerializer
+
+class DeleteFichierView(DestroyAPIView):
+    queryset= Fichier.objects.all()
+    serializer_class= fichierSerializer    

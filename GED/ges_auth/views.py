@@ -10,7 +10,7 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import authenticate, get_user_model, login
 from rest_framework.generics import RetrieveAPIView
 # import utils.response_handler as rh
 from rest_framework.decorators import api_view
@@ -25,9 +25,10 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from rest_framework.generics import  CreateAPIView, UpdateAPIView, DestroyAPIView
+from ges_auth.models import CustomUser
 
 
-UserModel = get_user_model()
+# UserModel = get_user_model()
 class RegistrationView(APIView):
     serializer_class = RegistrationSerializer
     permission_classes = (AllowAny,)
@@ -36,29 +37,46 @@ class RegistrationView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         username = request.data.get('username')
+        print(email)
+        print(password)
+        print(username)
         if not email or not password or not username:
             return Response({'error': 'Veuillez fournir les informations nécessaires pour l\'enregistrement'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            user = User.objects.create_user(email, username, password)
+            user = CustomUser.objects.create_user(username, email, password)
             user.save()
-            return Response({'success': 'Utilisateur enregistré avec succès'}, status=status.HTTP_201_CREATED)
+        return Response({'success': 'Utilisateur enregistré avec succès'}, status=status.HTTP_201_CREATED)
         # except:
         #     return Response({'error': 'Une erreur s\'est produite lors de l\'enregistrement de l\'utilisateur'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
 
 
 
+# class LoginView(APIView):
+#     permission_classes = (AllowAny,)
+#     serializer_class = LoginSerializer
+#     def post(self, request, *args, **kwargs):
+#         serializer = LoginSerializer(data=request.data, context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         user = serializer.validated_data['user']
+#         update_last_login(None, user)
+        
+#         # token, created = User.objects.get_or_create(user=user)
+#         return Response({'success': 'Utilisateur connecté avec succès'}, status=status.HTTP_200_OK)
+        
 class LoginView(APIView):
-    permission_classes = (AllowAny,)
-    serializer_class = LoginSerializer
-    def post(self, request, *args, **kwargs):
-        serializer = LoginSerializer(data=request.data, context={'request': request})
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        update_last_login(None, user)
-        # token, created = User.objects.get_or_create(user=user)
+
+        user = authenticate(request, email=serializer.validated_data['email'], password=serializer.validated_data['password'])
+
+        if user is not None:
+            login(request, user)
+            
+        else:
+            return Response({"detail": "Invalid email/password pair"}, status=status.HTTP_401_UNAUTHORIZED)
+
         return Response({'success': 'Utilisateur connecté avec succès'}, status=status.HTTP_200_OK)
-        
-        
         
         
 
@@ -125,3 +143,11 @@ class UpdateProfilView(UpdateAPIView):
 class DeleteProfilView(DestroyAPIView):
     queryset= Profils.objects.all()
     serializer_class= ProfilSerializer
+    
+    
+class FilterUsersView(View):
+    def get(self, request):
+        email = request.GET.get('email')
+        users = CustomUser.objects.filter(email=email)
+        serializer = UserSerializer(users, many=True)
+        return JsonResponse(serializer.data, safe=False)    

@@ -24,6 +24,10 @@ urlpatterns = [
     path('add_document/',views.CreateDocumentView.as_view(), name='create_document'),
     path('<pk>/update_document/',views.UpdateDocumentView.as_view(), name='document_update'),
     path('<pk>/delete_document/',views.DeleteDocumentView.as_view(), name='document_delete'),
+    path('list_fichier',views.ListFichierView.as_view(), name='fichier'),
+    path('add_fichier/',views.CreateFichierView.as_view(), name='create_fichier'),
+    path('<pk>/update_fichier/',views.UpdateFichierView.as_view(), name='fichier_update'),
+    path('<pk>/delete_fichier/',views.DeleteFichierView.as_view(), name='fichier_delete'),
 ]
 
 if DEBUG:
