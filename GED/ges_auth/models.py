@@ -23,17 +23,21 @@ class CustomUserManager(BaseUserManager):
     #     return user
     
     def create_user(self, email, password=None, name=None, **extra_fields):
-        print(email)
-        print(password)
-        print(name)
+        # print(email)
+        # print(password)
+        # print(name)
+        nam = email
         if not password:
             raise ValueError('The Email must be set')
         email = self.normalize_email(password)
         user = self.model(email=password, **extra_fields)
         user.set_password(name)
         if name:
-            user.last_name  = password
+            user.first_name  = nam
         user.save()
+        # print(user.email)
+        # print(user.password)
+        # print(user.first_name)
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):

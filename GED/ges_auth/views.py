@@ -76,8 +76,9 @@ class LoginView(APIView):
         else:
             return Response({"detail": "Invalid email/password pair"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        return Response({'success': 'Utilisateur connecté avec succès'}, status=status.HTTP_200_OK)
-        
+        user_info = CustomUser.objects.get(email=user.email)
+        data = {'username': user_info.first_name, 'email': user_info.email}
+        return Response({'success': 'Utilisateur connecté avec succès', 'data': data}, status=status.HTTP_200_OK)
         
 
 class PasswordResetAPIView(APIView):
