@@ -25,9 +25,18 @@ class adminView(viewsets.ModelViewSet):
     # with the user objects
     queryset = Document.objects.all()
     
+# class ListDocumentView(ListAPIView):
+#     queryset= Document.objects.all()
+#     serializer_class= adminSerializer
 class ListDocumentView(ListAPIView):
-    queryset= Document.objects.all()
-    serializer_class= adminSerializer
+    serializer_class = adminSerializer
+
+    def get_queryset(self):
+        queryset = Document.objects.all()
+        nom_doc = self.request.query_params.get('nom_doc')
+        if nom_doc is not None:
+            queryset = queryset.filter(nom_doc__icontains=nom_doc)
+        return queryset    
 
 class CreateDocumentView(CreateAPIView):
     queryset= Document.objects.all()

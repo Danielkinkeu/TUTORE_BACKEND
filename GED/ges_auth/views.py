@@ -24,7 +24,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
-from rest_framework.generics import  CreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import  CreateAPIView, UpdateAPIView, DestroyAPIView, ListAPIView
 from ges_auth.models import CustomUser
 
 
@@ -137,14 +137,28 @@ class CreateProfilView(CreateAPIView):
     queryset= Profils.objects.all()
     serializer_class= ProfilSerializer
     
-class UpdateProfilView(UpdateAPIView): 
-    queryset= Profils.objects.all()
-    serializer_class= ProfilSerializer
+class UpdateProfilView(UpdateAPIView):
+    serializer_class = ProfilSerializer
+
+    def get_object(self):
+        user = self.request.user
+        return Profils.objects.get(user=user)
 
 class DeleteProfilView(DestroyAPIView):
+    serializer_class = ProfilSerializer
+
+    def get_object(self):
+        user = self.request.user
+        return Profils.objects.get(user=user)
+class ListProfilView(ListAPIView):
     queryset= Profils.objects.all()
-    serializer_class= ProfilSerializer
-    
+    serializer_class= ProfilSerializer    
+class ProfilView(ListAPIView):
+    serializer_class = ProfilSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Profils.objects.filter(user=user)    
     
 class FilterUsersView(View):
     def get(self, request):
